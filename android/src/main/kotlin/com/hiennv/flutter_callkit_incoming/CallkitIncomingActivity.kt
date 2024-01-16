@@ -116,7 +116,7 @@ class CallkitIncomingActivity : Activity() {
                     PowerManager.PARTIAL_WAKE_LOCK,
                     CallkitIncomingActivity::class.java.canonicalName
                 ).apply {
-                    setReferenceCounted(false);
+                    setReferenceCounted(false)
                     acquire(duration)
                 }
             }
@@ -182,7 +182,7 @@ class CallkitIncomingActivity : Activity() {
         if (callType > 0) {
             ivAcceptCall.setImageResource(R.drawable.ic_video)
         }
-        val duration = data?.getLong(CallkitConstants.EXTRA_CALLKIT_DURATION, 30000) ?: 30000
+        val duration = data?.getLong(CallkitConstants.EXTRA_CALLKIT_DURATION, 0L) ?: 0L
         wakeLockRequest(duration)
 
         finishTimeout(data, duration)
