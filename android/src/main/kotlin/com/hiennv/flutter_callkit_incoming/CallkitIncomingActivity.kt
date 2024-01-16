@@ -103,10 +103,18 @@ class CallkitIncomingActivity : Activity() {
         setContentView(R.layout.activity_callkit_incoming)
         initView()
         incomingData(intent)
-        registerReceiver(
-            endedCallkitIncomingBroadcastReceiver,
-            IntentFilter("${packageName}.${ACTION_ENDED_CALL_INCOMING}")
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                endedCallkitIncomingBroadcastReceiver,
+                IntentFilter("${packageName}.${ACTION_ENDED_CALL_INCOMING}"),
+                Context.RECEIVER_EXPORTED,
+            )
+        } else {
+            registerReceiver(
+                endedCallkitIncomingBroadcastReceiver,
+                IntentFilter("${packageName}.${ACTION_ENDED_CALL_INCOMING}")
+            )
+        }
     }
 
     private fun wakeLockRequest(duration: Long) {
@@ -160,8 +168,15 @@ class CallkitIncomingActivity : Activity() {
         val data = intent.extras?.getBundle(CallkitConstants.EXTRA_CALLKIT_INCOMING_DATA)
         if (data == null) finish()
 
+		val textColor = data?.getString(CallkitConstants.EXTRA_CALLKIT_TEXT_COLOR, "#ffffff")
         tvNameCaller.text = data?.getString(CallkitConstants.EXTRA_CALLKIT_NAME_CALLER, "")
         tvNumber.text = data?.getString(CallkitConstants.EXTRA_CALLKIT_HANDLE, "")
+
+		try {
+			tvNameCaller.setTextColor(Color.parseColor(textColor))
+			tvNumber.setTextColor(Color.parseColor(textColor))
+		} catch (error: Exception) {
+		}
 
         val isShowLogo = data?.getBoolean(CallkitConstants.EXTRA_CALLKIT_IS_SHOW_LOGO, false)
         ivLogo.visibility = if (isShowLogo == true) View.VISIBLE else View.INVISIBLE
@@ -194,8 +209,13 @@ class CallkitIncomingActivity : Activity() {
         tvDecline.text =
             if (TextUtils.isEmpty(textDecline)) getString(R.string.text_decline) else textDecline
 
-        val backgroundColor =
-            data?.getString(CallkitConstants.EXTRA_CALLKIT_BACKGROUND_COLOR, "#0955fa")
+		try {
+			tvAccept.setTextColor(Color.parseColor(textColor))
+			tvDecline.setTextColor(Color.parseColor(textColor))
+		} catch (error: Exception) {
+		}
+
+        val backgroundColor = data?.getString(CallkitConstants.EXTRA_CALLKIT_BACKGROUND_COLOR, "#0955fa")
         try {
             ivBackground.setBackgroundColor(Color.parseColor(backgroundColor))
         } catch (error: Exception) {
